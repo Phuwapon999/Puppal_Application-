@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:puppal_application/navbar/navbar_user.dart';
 import 'package:puppal_application/pages_user/%E0%B9%89home_page.dart';
+import 'package:puppal_application/pages_user/registerType_page.dart';
+import 'package:puppal_application/pages_user/registerUser_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -159,6 +161,7 @@ class _LoginPageState extends State<LoginPage> {
               Center(
                 child: GestureDetector(
                   onTap: () {
+                    Get.to(() => const RegistertypePage());
                     // Add Register Action Here
                   },
                   child: const Text(
