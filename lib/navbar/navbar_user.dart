@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:puppal_application/pages_user/%E0%B9%89home_page.dart';
+import 'package:puppal_application/pages_user/home_page.dart';
 import 'package:puppal_application/pages_user/notification_page.dart';
 import 'package:puppal_application/pages_user/profile_page.dart';
 import 'package:puppal_application/pages_user/search_page.dart';

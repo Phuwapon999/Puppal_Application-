@@ -37,6 +37,12 @@ dependencies:
   cupertino_icons: ^1.0.8
   get: ^4.6.6
   flutter_svg: ^2.0.16
+  google_maps_flutter: ^2.10.0
+  geolocator: ^13.0.2
+  latlong2: ^0.9.1
+  firebase_core: ^3.9.0
+  http: ^1.2.2
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:
@@ -63,6 +69,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/config/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "555154067609",
+    "project_id": "puppal-df903",
+    "storage_bucket": "puppal-df903.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:555154067609:android:b81a0ba6f8dd2857bf2808",
+        "android_client_info": {
+          "package_name": "com.example.puppal_application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdmrm0zXrK21uOUil9vp9A79eyHIcDLPY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

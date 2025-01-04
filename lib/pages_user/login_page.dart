@@ -1,7 +1,16 @@
+import 'dart:convert';
+import 'dart:developer';
+
+import 'package:http/http.dart' as http;
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
+import 'package:puppal_application/config/config.dart';
+import 'package:puppal_application/config/share/app_data.dart';
+import 'package:puppal_application/models/request/login_data.dart';
 import 'package:puppal_application/navbar/navbar_user.dart';
-import 'package:puppal_application/pages_user/%E0%B9%89home_page.dart';
+import 'package:puppal_application/pages_user/home_page.dart';
 import 'package:puppal_application/pages_user/registerType_page.dart';
 import 'package:puppal_application/pages_user/registerUser_page.dart';
 
@@ -13,6 +22,10 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  String url = "";
+  TextEditingController emailCtl = TextEditingController();
+  TextEditingController passwordCtl = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,6 +71,7 @@ class _LoginPageState extends State<LoginPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 30.0),
                 child: TextField(
+                  controller: emailCtl,
                   decoration: InputDecoration(
                     labelText: '',
                     border: OutlineInputBorder(
@@ -78,6 +92,7 @@ class _LoginPageState extends State<LoginPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 30.0),
                 child: TextField(
+                  controller: passwordCtl,
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: '',
@@ -117,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   onPressed: () {
-                    Get.to(NavbarUser(selectedPage: 0));
+                    LoginButton();
                   },
                   child: const Text(
                     'เข้าสู่ระบบ',
@@ -178,6 +193,105 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> LoginButton() async {
+    var config = await Configuration.getConfig();
+    url = config['apiEndPoint'];
+
+    LoginData login =
+        LoginData(email: emailCtl.text, password: passwordCtl.text);
+
+    final response = await http.post(
+      Uri.parse("$url/user/login"),
+      headers: {"Content-Type": "application/json; charset=utf-8"},
+      body: json.encode(login.toJson()),
+    );
+
+    log('Registration response: ${response.body}');
+
+    if (response.statusCode == 200) {
+      context.read<Appdata>().email = login.email;
+      Get.to(() => NavbarUser(selectedPage: 0));
+    } else {
+      showErrorDialog('กรุณากรอกอีเมลและรหัสผ่านให้ถูกต้อง');
+    }
+  }
+
+  void showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.8,
+            padding: const EdgeInsets.all(0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(0, 25, 10, 10),
+                  child: Center(
+                    child: Text(
+                      "เกิดข้อผิดพลาด!", // "Error"
+                      style: TextStyle(
+                        fontSize: 23,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                const Divider(),
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Text(
+                    message, // แสดงข้อความข้อผิดพลาด
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 5, 0, 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.6,
+                        height: MediaQuery.of(context).size.height * 0.06,
+                        child: FilledButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                                const Color(0xFFFF7723)), // สีพื้นหลัง
+                          ),
+                          child: const Text(
+                            'ตกลง',
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

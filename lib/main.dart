@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
+import 'package:puppal_application/config/share/app_data.dart';
 import 'package:puppal_application/pages_user/login_page.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+  // await Firebase.initializeApp(
+  //   options: DefaultFirebaseOptions.currentPlatform,
+  // );
+  runApp(MultiProvider(
+    providers: [ChangeNotifierProvider(create: (context) => Appdata())],
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
