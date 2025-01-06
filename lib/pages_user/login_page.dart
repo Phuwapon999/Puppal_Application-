@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:puppal_application/config/config.dart';
 import 'package:puppal_application/config/share/app_data.dart';
 import 'package:puppal_application/models/request/login_data.dart';
+import 'package:puppal_application/models/response/userData.dart';
 import 'package:puppal_application/navbar/navbar_user.dart';
 import 'package:puppal_application/pages_user/home_page.dart';
 import 'package:puppal_application/pages_user/registerType_page.dart';
@@ -22,12 +23,16 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  double screenWidth = 0;
+  double screenHeight = 0;
   String url = "";
   TextEditingController emailCtl = TextEditingController();
   TextEditingController passwordCtl = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: Colors.white,
       drawer: const HomePage(),
@@ -210,10 +215,116 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     log('Registration response: ${response.body}');
+    var decode = jsonDecode(response.body);
+    var jsondecode = decode[0];
+    UserData loginResponse = UserData.fromJson(jsondecode);
 
     if (response.statusCode == 200) {
-      context.read<Appdata>().email = login.email;
-      Get.to(() => NavbarUser(selectedPage: 0));
+      context.read<Appdata>().uid = loginResponse.uid;
+      if (loginResponse.username != null && loginResponse.clinicname != null) {
+        showDialog(
+          context: context,
+          barrierDismissible: false, // Prevent dismissing by tapping outside
+          builder: (BuildContext context) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.8,
+                padding: const EdgeInsets.all(0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(0, 25, 10, 10),
+                      child: Center(
+                        child: Text(
+                          "กรุณาเลือกประเภทผู้ใช้", // "Success"
+                          style: TextStyle(
+                            fontSize: 23,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Divider(),
+                    const SizedBox(height: 10),
+                    Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              width: screenWidth * 0.7,
+                              child: GestureDetector(
+                                onTap: () {
+                                  Get.to(() => NavbarUser(selectedPage: 0));
+                                  context.read<Appdata>().type = 1;
+                                },
+                                child: Card(
+                                  color: const Color(0xFFFFECB3),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 50),
+                                    child: Column(
+                                      children: [
+                                        Image.asset(
+                                            'assets/images/userType.png'),
+                                        const Text(
+                                          'เจ้าของสุนัข',
+                                          style: TextStyle(
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: screenWidth * 0.7,
+                              child: GestureDetector(
+                                onTap: () {
+                                  Get.to(() => NavbarUser(selectedPage: 0));
+                                  context.read<Appdata>().type = 2;
+                                },
+                                child: Card(
+                                  color: const Color(0xFFFFECB3),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 30),
+                                    child: Column(
+                                      children: [
+                                        Image.asset(
+                                            'assets/images/clinicType.png'),
+                                        const Text(
+                                          'สัตว์แพทย์',
+                                          style: TextStyle(
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      } else if (loginResponse.username != null) {
+        Get.to(() => NavbarUser(selectedPage: 0));
+        context.read<Appdata>().type = 1;
+      } else if (loginResponse.clinicname != null) {
+        Get.to(() => NavbarUser(selectedPage: 0));
+        context.read<Appdata>().type = 2;
+      }
     } else {
       showErrorDialog('กรุณากรอกอีเมลและรหัสผ่านให้ถูกต้อง');
     }

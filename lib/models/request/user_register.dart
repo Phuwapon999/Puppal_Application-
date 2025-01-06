@@ -17,7 +17,6 @@ class UserRegister {
   String email;
   String password;
   String profilePic;
-  int type;
 
   UserRegister({
     required this.username,
@@ -26,7 +25,6 @@ class UserRegister {
     required this.email,
     required this.password,
     required this.profilePic,
-    required this.type,
   });
 
   factory UserRegister.fromJson(Map<String, dynamic> json) => UserRegister(
@@ -36,7 +34,6 @@ class UserRegister {
         email: json["email"],
         password: json["password"],
         profilePic: json["profilePic"],
-        type: json["type"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -46,6 +43,5 @@ class UserRegister {
         "email": email,
         "password": password,
         "profilePic": profilePic,
-        "type": type,
       };
 }

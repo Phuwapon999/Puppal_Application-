@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
+import 'package:puppal_application/pages_user/myDog_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});

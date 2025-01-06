@@ -2,8 +2,11 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:puppal_application/config/share/app_data.dart';
+import 'package:puppal_application/pages_clinic/clinic_search.dart';
+import 'package:puppal_application/pages_user/myDog_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,7 +19,8 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    log(context.read<Appdata>().email);
+    log(context.read<Appdata>().uid.toString());
+    log(context.read<Appdata>().type.toString());
   }
 
   @override
@@ -67,12 +71,15 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 20),
-            const ListTile(
-              leading: Icon(Icons.pets, color: Colors.white),
-              title: Text(
+            ListTile(
+              leading: const Icon(Icons.pets, color: Colors.white),
+              title: const Text(
                 'ค้นหาคลินิก',
                 style: TextStyle(color: Colors.white),
               ),
+              onTap: () {
+                Get.to(() => const ClinicSearch());
+              },
             ),
             const ListTile(
               leading: Icon(Icons.vaccines, color: Colors.white),
@@ -95,6 +102,9 @@ class _HomePageState extends State<HomePage> {
                 'สุนัขของฉัน',
                 style: TextStyle(color: Colors.white),
               ),
+              onTap: () {
+                Get.to(() => const MydogPage());
+              },
             ),
             const ListTile(
               leading: Icon(Icons.announcement, color: Colors.white),

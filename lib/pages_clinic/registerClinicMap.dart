@@ -123,14 +123,13 @@ class _RegisterclinicmapState extends State<Registerclinicmap> {
 
       ClinicRegister userRegisterReq = ClinicRegister(
         email: userData.email,
-        username: userData.username,
+        clinicname: userData.username,
         phone: userData.phone,
         password: userData.password,
         nameSurname: userData.nameSurname,
-        profilePic: "FIREBASE DEAD!",
+        profileClinicPic: "FIREBASE DEAD!",
         lat: tapLocation!.latitude.toString(),
         lng: tapLocation!.longitude.toString(),
-        type: 2,
       );
 
       final response = await http.post(
@@ -250,7 +249,7 @@ class _RegisterclinicmapState extends State<Registerclinicmap> {
                     const Padding(
                       padding: EdgeInsets.all(10),
                       child: Text(
-                        "เบอร์นี้ถูกใช้แล้ว", // "Item sent successfully"
+                        "อีเมลนี้ถูกใช้แล้ว", // "Item sent successfully"
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 15,
