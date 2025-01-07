@@ -235,7 +235,9 @@ class _ClinicPageState extends State<ClinicPage> {
                                         ),
                                       ),
                                       onPressed: () {
-                                        Get.to(() => const BookPage());
+                                        Get.to(() => BookPage(
+                                              did: accountData.uid,
+                                            ));
                                       },
                                       child: const Text(
                                         'จองวันฉีด',

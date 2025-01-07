@@ -1,46 +1,60 @@
+import 'dart:convert';
 import 'dart:developer';
 
+import 'package:http/http.dart' as http;
+
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:puppal_application/config/config.dart';
 import 'package:puppal_application/config/share/app_data.dart';
+import 'package:puppal_application/models/response/reserveDataUser.dart';
 import 'package:puppal_application/pages_clinic/clinic_request.dart';
 import 'package:puppal_application/pages_clinic/clinic_search.dart';
-import 'package:puppal_application/pages_user/calendar_page.dart';
 import 'package:puppal_application/pages_user/myDog_page.dart';
 import 'package:puppal_application/pages_user/user_request.dart';
+import 'package:table_calendar/table_calendar.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class CalendarPage extends StatefulWidget {
+  const CalendarPage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<CalendarPage> createState() => _CalendarPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _CalendarPageState extends State<CalendarPage> {
   int uid = 0;
   int type = 0;
+  String url = "";
+
+  late DateTime _selectedDay;
+  late DateTime _focusedDay;
+  CalendarFormat _calendarFormat = CalendarFormat.month;
+
+  List<ReserveDataUser> reserveUser = [];
+
+  Map<DateTime, List<ReserveDataUser>> events = {};
 
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
+    _focusedDay = DateTime.now();
+    _selectedDay = _focusedDay;
     uid = context.read<Appdata>().uid;
     type = context.read<Appdata>().type;
-    log(type.toString());
+
+    getAllRequest();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Padding(
-          padding: EdgeInsets.only(top: 20),
-          child: Center(child: Text('Puppal')),
-        ),
-        backgroundColor: Colors.white,
+        title: const Center(child: Text('สุนัขของฉัน')),
+        backgroundColor: const Color(0xFF8C6C59),
       ),
       endDrawer: Drawer(
         width: 250,
@@ -204,12 +218,76 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      body: const Center(
-        child: Text(
-          'Welcome to the Home Page',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
+      body: Column(
+        children: [
+          TableCalendar(
+            locale: 'th_TH',
+            focusedDay: _focusedDay,
+            firstDay: DateTime.now(),
+            lastDay: DateTime(DateTime.now().year + 1, 1, 0),
+            calendarFormat: _calendarFormat,
+            onDaySelected: (selectedDay, focusedDay) {
+              _selectedDay = selectedDay;
+              _focusedDay = focusedDay;
+              setState(() {});
+            },
+            onFormatChanged: (format) {
+              setState(() {
+                _calendarFormat = format;
+              });
+            },
+            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+            calendarStyle: CalendarStyle(
+                selectedDecoration: const BoxDecoration(
+                    color: Colors.orange, shape: BoxShape.circle),
+                todayDecoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.orange,
+                    width: 2.0,
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                todayTextStyle: const TextStyle(color: Colors.black)),
+            eventLoader: (day) {
+              return events[day] ?? [];
+            },
+          ),
+          Text(DateFormat('dd MMMM yyyy', 'th').format(DateTime(
+              _selectedDay.year + 543, _selectedDay.month, _selectedDay.day))),
+        ],
       ),
     );
+  }
+
+  Future<void> getAllRequest() async {
+    var config = await Configuration.getConfig();
+    url = config['apiEndPoint'];
+
+    final response = await http.get(
+      Uri.parse("$url/reserve/user/calendar/$uid"),
+      headers: {"Content-Type": "application/json; charset=utf-8"},
+    );
+
+    log('Registration response: ${response.body}');
+    var decode = jsonDecode(response.body);
+    reserveUser = (decode as List)
+        .map((jsonitem) => ReserveDataUser.fromJson(jsonitem))
+        .toList();
+
+    // log("length DOG:${dogResponse.length}");
+    reserveUser.forEach((book) {
+      log(book.clinicname);
+    });
+
+    events.clear();
+    for (var reserve in reserveUser) {
+      DateTime eventDate = DateTime.parse(reserve.date);
+      if (events[eventDate] == null) {
+        events[eventDate] = [];
+      }
+      events[eventDate]?.add(reserve);
+    }
+    log("Number of events: ${events.length}");
+    setState(() {});
   }
 }
