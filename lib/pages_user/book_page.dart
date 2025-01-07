@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:puppal_application/config/config.dart';
 import 'package:puppal_application/config/share/app_data.dart';
 import 'package:puppal_application/models/request/reserve_data.dart';
+import 'package:puppal_application/models/response/doctorReserveData.dart';
 import 'package:puppal_application/models/response/dogData.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -36,7 +37,32 @@ class _BookPageState extends State<BookPage> {
 
   late DateTime _selectedDay;
   late DateTime _focusedDay;
+
+  DateTime? _selectedDayAndTime;
   CalendarFormat _calendarFormat = CalendarFormat.month;
+
+  List<DoctorReserveData> reserveClinic = [];
+  List<DateTime> dateReserve = [];
+
+  String? _selectedTime;
+  List<String> reservedDay = [];
+  List<String> reservedTime = [];
+  final List<Map<String, dynamic>> timeSlots = [
+    {"time": "9:00-9:30", "isDisabled": false},
+    {"time": "9:30-10:00", "isDisabled": false},
+    {"time": "10:00-10:30", "isDisabled": false},
+    {"time": "10:30-11:00", "isDisabled": false}, // Disabled slot
+    {"time": "11:00-11:30", "isDisabled": false},
+    {"time": "11:30-12:00", "isDisabled": false}, // Disabled slot
+    {"time": "12:00-12:30", "isDisabled": false},
+    {"time": "12:30-13:00", "isDisabled": false},
+    {"time": "13:00-13:30", "isDisabled": false},
+    {"time": "13:30-14:00", "isDisabled": false},
+    {"time": "14:00-14:30", "isDisabled": false},
+    {"time": "14:30-15:00", "isDisabled": false},
+    {"time": "15:00-15:30", "isDisabled": false},
+    {"time": "15:30-16:00", "isDisabled": false},
+  ];
 
   @override
   void initState() {
@@ -46,6 +72,7 @@ class _BookPageState extends State<BookPage> {
     uid = context.read<Appdata>().uid;
     did = widget.did;
     getAllDog();
+    getAllDoctorReserve();
   }
 
   @override
@@ -63,9 +90,7 @@ class _BookPageState extends State<BookPage> {
             lastDay: DateTime(DateTime.now().year + 1, 1, 0),
             calendarFormat: _calendarFormat,
             onDaySelected: (selectedDay, focusedDay) {
-              _selectedDay = selectedDay;
-              _focusedDay = focusedDay;
-              setState(() {});
+              onTapDate(selectedDay, focusedDay);
             },
             onFormatChanged: (format) {
               setState(() {
@@ -126,10 +151,82 @@ class _BookPageState extends State<BookPage> {
               ],
             ),
           ),
-          ElevatedButton(onPressed: confirmDate, child: const Text('ยืนยัน'))
+          ElevatedButton(
+              onPressed: selectTimeButton, child: const Text('เลือกเวลา')),
+          _selectedDayAndTime != null
+              ? Text(_selectedDayAndTime.toString())
+              : const SizedBox.shrink(),
+          ElevatedButton(
+              onPressed: _selectedDayAndTime != null && didCtl.text.isNotEmpty
+                  ? _showConfirmDateDialog
+                  : null,
+              child: const Text('ยืนยันการจอง')),
         ],
       ),
     );
+  }
+
+  void onTapDate(DateTime selectedDay, DateTime focusedDay) {
+    getAllDoctorReserve();
+    reservedTime.clear();
+    _selectedDay = selectedDay;
+    _focusedDay = focusedDay;
+    // log(selectedDay.toString());
+    if (reservedDay.contains(DateFormat('yyyy MM dd').format(selectedDay))) {
+      dateReserve.forEach((book) {
+        if (DateFormat('yyyy MM dd').format(book) ==
+            DateFormat('yyyy MM dd').format(selectedDay)) {
+          reservedTime.add(DateFormat('HH:mm').format(book));
+        }
+      });
+      reservedTime.forEach((temp) {
+        log("TIME RESERVE TESTTEST: $temp");
+      });
+      // log(selectedDay.toString());
+      disableSlots(timeSlots, reservedTime);
+    } else {
+      timeSlots.forEach((isOpen) {
+        isOpen['isDisabled'] = false;
+      });
+    }
+    setState(() {});
+  }
+
+  Future<void> getAllDoctorReserve() async {
+    var config = await Configuration.getConfig();
+    url = config['apiEndPoint'];
+
+    final response = await http.get(
+      Uri.parse("$url/reserve/doctor/$did"),
+      headers: {"Content-Type": "application/json; charset=utf-8"},
+    );
+
+    log('Registration response: ${response.body}');
+    var decode = jsonDecode(response.body);
+    reserveClinic = (decode as List)
+        .map((jsonitem) => DoctorReserveData.fromJson(jsonitem))
+        .toList();
+
+    // log("length DOG:${dogResponse.length}");
+    dateReserve =
+        reserveClinic.map((date) => DateTime.parse(date.date)).toList();
+
+    dateReserve.forEach((book) {
+      reservedDay.add(DateFormat('yyyy MM dd').format(book));
+    });
+
+    // dateReserve.forEach((temp) {
+    //   log(temp.toString());
+    // });
+
+    // reservedTime.forEach((reserveTime) {
+    //   log(reserveTime);
+    // });
+
+    // reservedDay.forEach((reserveDay) {
+    //   log(reserveDay);
+    // });
+    setState(() {});
   }
 
   Future<void> getAllDog() async {
@@ -141,7 +238,7 @@ class _BookPageState extends State<BookPage> {
       headers: {"Content-Type": "application/json; charset=utf-8"},
     );
 
-    log('Registration response: ${response.body}');
+    // log('Registration response: ${response.body}');
     var decode = jsonDecode(response.body);
     dogResponse =
         (decode as List).map((jsonitem) => DogData.fromJson(jsonitem)).toList();
@@ -185,6 +282,10 @@ class _BookPageState extends State<BookPage> {
     );
   }
 
+  void selectTimeButton() {
+    _showTimeSelectionDialog();
+  }
+
   Future<void> confirmDate() async {
     showLoadingDialog(context, true);
     var config = await Configuration.getConfig();
@@ -194,7 +295,7 @@ class _BookPageState extends State<BookPage> {
         uRid: uid,
         docRid: did,
         dRid: int.parse(didCtl.text),
-        date: _selectedDay);
+        date: _selectedDayAndTime!);
 
     final response = await http.post(
       Uri.parse("$url/reserve/add"),
@@ -472,5 +573,165 @@ class _BookPageState extends State<BookPage> {
         );
       },
     );
+  }
+
+  Future<void> _showTimeSelectionDialog() async {
+    String? tempSelectedTime;
+
+    String? selectedTime = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setDialogState) {
+            // Use setDialogState for updating dialog-specific state
+            return AlertDialog(
+              title: const Text("Select a Time Slot"),
+              content: Column(
+                children: [
+                  Container(
+                    width: screenWidth,
+                    height: MediaQuery.of(context).size.height * 0.6,
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3, // 3 items per row
+                        childAspectRatio: 1, // Adjust height-to-width ratio
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                      ),
+                      itemCount: timeSlots.length,
+                      itemBuilder: (context, index) {
+                        final slot = timeSlots[index];
+                        final isDisabled = slot['isDisabled'] as bool;
+                        final time = slot['time'] as String;
+                        return GestureDetector(
+                          onTap: isDisabled
+                              ? null
+                              : () {
+                                  // Update local state inside the dialog
+                                  setDialogState(() {
+                                    tempSelectedTime = time;
+                                    log(tempSelectedTime!);
+                                    _selectedTime = time;
+                                    _selectedDayAndTime = combineDateAndTime(
+                                        _selectedDay.toString(), _selectedTime);
+                                  });
+                                },
+                          child: Container(
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: isDisabled
+                                  ? Colors.grey[300]
+                                  : (tempSelectedTime == time)
+                                      ? Colors.blue
+                                      : Colors.white,
+                              border: Border.all(
+                                color: tempSelectedTime == time
+                                    ? Colors.blue
+                                    : Colors.grey,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              time,
+                              style: TextStyle(
+                                color: isDisabled ? Colors.grey : Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Cancel without selecting
+                  },
+                  child: Text("Cancel"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {});
+                    Navigator.pop(context);
+                  },
+                  child: Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  DateTime combineDateAndTime(String dateTimeString, String? timeRange) {
+    if (timeRange == null) {
+      throw ArgumentError('timeRange cannot be null');
+    }
+
+    DateTime dateTime = DateTime.parse(dateTimeString);
+    String time = timeRange.split('-')[0];
+
+    List<String> timeParts = time.split(':');
+    int hour = int.parse(timeParts[0]);
+    int minute = int.parse(timeParts[1]);
+
+    DateTime combinedDateTime = DateTime(
+      dateTime.year,
+      dateTime.month,
+      dateTime.day,
+      hour,
+      minute,
+    );
+
+    return combinedDateTime;
+  }
+
+  Future<void> _showConfirmDateDialog() async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Confirm Date"),
+          content: const Text("Are you sure you want to confirm this date?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Cancel the dialog
+                Navigator.pop(context);
+              },
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                confirmDate(); // Call the confirmDate function
+                setState(() {});
+                Navigator.pop(context); // Close the dialog
+              },
+              child: const Text("Confirm"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void disableSlots(
+      List<Map<String, dynamic>> timeSlots, List<String> compare) {
+    timeSlots.forEach((isOpen) {
+      isOpen['isDisabled'] = false;
+    });
+    for (var slot in timeSlots) {
+      String startTime = slot['time'].split('-')[0];
+
+      if (compare.contains(startTime)) {
+        slot['isDisabled'] = true;
+      }
+    }
   }
 }

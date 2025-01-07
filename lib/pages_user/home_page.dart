@@ -5,9 +5,11 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:puppal_application/config/share/app_data.dart';
+import 'package:puppal_application/navbar/navbar_user.dart';
 import 'package:puppal_application/pages_clinic/clinic_request.dart';
 import 'package:puppal_application/pages_clinic/clinic_search.dart';
 import 'package:puppal_application/pages_user/calendar_page.dart';
+import 'package:puppal_application/pages_user/login_page.dart';
 import 'package:puppal_application/pages_user/myDog_page.dart';
 import 'package:puppal_application/pages_user/user_request.dart';
 
@@ -86,7 +88,7 @@ class _HomePageState extends State<HomePage> {
                       style: TextStyle(color: Colors.white),
                     ),
                     onTap: () {
-                      Get.to(() => const ClinicSearch());
+                      Get.off(() => const ClinicSearch());
                     },
                   )
                 : ListTile(
@@ -160,7 +162,19 @@ class _HomePageState extends State<HomePage> {
                       style: TextStyle(color: Colors.white),
                     ),
                   )
-                : const SizedBox.shrink(),
+                : ListTile(
+                    leading: const Icon(Icons.person, color: Colors.white),
+                    title: const Text(
+                      'สลับไปยังผู้ใช้ทั่วไป',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onTap: () {
+                      Get.to(
+                          () => const ClinicSearch()); //IT CANT ROUTE THE BELOW
+                      Get.to(() => NavbarUser(selectedPage: 0)); //THIS ONE SHIT
+                      context.read<Appdata>().type = 1;
+                    },
+                  ),
             type == 1
                 ? const ListTile(
                     leading: Icon(Icons.history, color: Colors.white),
@@ -201,6 +215,31 @@ class _HomePageState extends State<HomePage> {
                     ),
                   )
                 : const SizedBox.shrink(),
+            type == 1
+                ? ListTile(
+                    leading: const Icon(Icons.healing, color: Colors.white),
+                    title: const Text(
+                      'สลับไปยังคลินิก',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onTap: () {
+                      Get.to(
+                          () => const ClinicSearch()); //IT CANT ROUTE THE BELOW
+                      Get.to(() => NavbarUser(selectedPage: 0)); //THIS ONE SHIT
+                      context.read<Appdata>().type = 2;
+                    },
+                  )
+                : const SizedBox.shrink(),
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.white),
+              title: const Text(
+                'ออกจากระบบ',
+                style: TextStyle(color: Colors.white),
+              ),
+              onTap: () {
+                Get.to(() => const LoginPage()); //IT CANT ROUTE THE BELOW
+              },
+            )
           ],
         ),
       ),

@@ -10,9 +10,13 @@ import 'package:provider/provider.dart';
 import 'package:puppal_application/config/config.dart';
 import 'package:puppal_application/config/share/app_data.dart';
 import 'package:puppal_application/models/response/dogData.dart';
+import 'package:puppal_application/navbar/navbar_user.dart';
 import 'package:puppal_application/pages_clinic/clinic_request.dart';
 import 'package:puppal_application/pages_clinic/clinic_search.dart';
+import 'package:puppal_application/pages_user/calendar_page.dart';
+import 'package:puppal_application/pages_user/login_page.dart';
 import 'package:puppal_application/pages_user/registerDog_page.dart';
+import 'package:puppal_application/pages_user/user_request.dart';
 
 class MydogPage extends StatefulWidget {
   const MydogPage({super.key});
@@ -91,7 +95,7 @@ class _MydogPageState extends State<MydogPage> {
                         style: TextStyle(color: Colors.white),
                       ),
                       onTap: () {
-                        Get.to(() => const ClinicSearch());
+                        Get.off(() => const ClinicSearch());
                       },
                     )
                   : ListTile(
@@ -105,12 +109,15 @@ class _MydogPageState extends State<MydogPage> {
                       },
                     ),
               type == 1
-                  ? const ListTile(
-                      leading: Icon(Icons.vaccines, color: Colors.white),
-                      title: Text(
+                  ? ListTile(
+                      leading: const Icon(Icons.vaccines, color: Colors.white),
+                      title: const Text(
                         'สถานะการฉีดยา',
                         style: TextStyle(color: Colors.white),
                       ),
+                      onTap: () {
+                        Get.to(() => const UserRequest());
+                      },
                     )
                   : const ListTile(
                       leading: Icon(Icons.vaccines, color: Colors.white),
@@ -162,7 +169,20 @@ class _MydogPageState extends State<MydogPage> {
                         style: TextStyle(color: Colors.white),
                       ),
                     )
-                  : const SizedBox.shrink(),
+                  : ListTile(
+                      leading: const Icon(Icons.person, color: Colors.white),
+                      title: const Text(
+                        'สลับไปยังผู้ใช้ทั่วไป',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () {
+                        Get.to(() =>
+                            const ClinicSearch()); //IT CANT ROUTE THE BELOW
+                        Get.to(
+                            () => NavbarUser(selectedPage: 0)); //THIS ONE SHIT
+                        context.read<Appdata>().type = 1;
+                      },
+                    ),
               type == 1
                   ? const ListTile(
                       leading: Icon(Icons.history, color: Colors.white),
@@ -173,12 +193,16 @@ class _MydogPageState extends State<MydogPage> {
                     )
                   : const SizedBox.shrink(),
               type == 1
-                  ? const ListTile(
-                      leading: Icon(Icons.calendar_today, color: Colors.white),
-                      title: Text(
+                  ? ListTile(
+                      leading:
+                          const Icon(Icons.calendar_today, color: Colors.white),
+                      title: const Text(
                         'ปฏิทิน',
                         style: TextStyle(color: Colors.white),
                       ),
+                      onTap: () {
+                        Get.to(() => const CalendarPage());
+                      },
                     )
                   : const SizedBox.shrink(),
               type == 1
@@ -199,6 +223,32 @@ class _MydogPageState extends State<MydogPage> {
                       ),
                     )
                   : const SizedBox.shrink(),
+              type == 1
+                  ? ListTile(
+                      leading: const Icon(Icons.healing, color: Colors.white),
+                      title: const Text(
+                        'สลับไปยังคลินิก',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () {
+                        Get.to(() =>
+                            const ClinicSearch()); //IT CANT ROUTE THE BELOW
+                        Get.to(
+                            () => NavbarUser(selectedPage: 0)); //THIS ONE SHIT
+                        context.read<Appdata>().type = 2;
+                      },
+                    )
+                  : const SizedBox.shrink(),
+              ListTile(
+                leading: const Icon(Icons.logout, color: Colors.white),
+                title: const Text(
+                  'ออกจากระบบ',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () {
+                  Get.to(() => const LoginPage()); //IT CANT ROUTE THE BELOW
+                },
+              )
             ],
           ),
         ),

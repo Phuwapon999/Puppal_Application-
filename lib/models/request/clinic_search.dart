@@ -12,7 +12,7 @@ String searchClinicToJson(List<SearchClinic> data) =>
 
 class SearchClinic {
   int uid;
-  String username;
+  String? username;
   String clinicname;
   String nameSurname;
   String phone;

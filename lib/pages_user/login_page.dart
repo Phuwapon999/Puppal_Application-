@@ -224,7 +224,7 @@ class _LoginPageState extends State<LoginPage> {
       if (loginResponse.username != null && loginResponse.clinicname != null) {
         showDialog(
           context: context,
-          barrierDismissible: false, // Prevent dismissing by tapping outside
+          barrierDismissible: true, // Prevent dismissing by tapping outside
           builder: (BuildContext context) {
             return Dialog(
               shape: RoundedRectangleBorder(

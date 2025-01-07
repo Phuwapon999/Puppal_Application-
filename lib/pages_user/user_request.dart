@@ -9,8 +9,11 @@ import 'package:provider/provider.dart';
 import 'package:puppal_application/config/config.dart';
 import 'package:puppal_application/config/share/app_data.dart';
 import 'package:puppal_application/models/response/reserveDataUser.dart';
+import 'package:puppal_application/navbar/navbar_user.dart';
 import 'package:puppal_application/pages_clinic/clinic_request.dart';
 import 'package:puppal_application/pages_clinic/clinic_search.dart';
+import 'package:puppal_application/pages_user/calendar_page.dart';
+import 'package:puppal_application/pages_user/login_page.dart';
 import 'package:puppal_application/pages_user/myDog_page.dart';
 
 class UserRequest extends StatefulWidget {
@@ -88,7 +91,7 @@ class _UserRequestState extends State<UserRequest> {
                       style: TextStyle(color: Colors.white),
                     ),
                     onTap: () {
-                      Get.to(() => const ClinicSearch());
+                      Get.off(() => const ClinicSearch());
                     },
                   )
                 : ListTile(
@@ -102,12 +105,15 @@ class _UserRequestState extends State<UserRequest> {
                     },
                   ),
             type == 1
-                ? const ListTile(
-                    leading: Icon(Icons.vaccines, color: Colors.white),
-                    title: Text(
+                ? ListTile(
+                    leading: const Icon(Icons.vaccines, color: Colors.white),
+                    title: const Text(
                       'สถานะการฉีดยา',
                       style: TextStyle(color: Colors.white),
                     ),
+                    onTap: () {
+                      Get.to(() => const UserRequest());
+                    },
                   )
                 : const ListTile(
                     leading: Icon(Icons.vaccines, color: Colors.white),
@@ -159,7 +165,19 @@ class _UserRequestState extends State<UserRequest> {
                       style: TextStyle(color: Colors.white),
                     ),
                   )
-                : const SizedBox.shrink(),
+                : ListTile(
+                    leading: const Icon(Icons.person, color: Colors.white),
+                    title: const Text(
+                      'สลับไปยังผู้ใช้ทั่วไป',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onTap: () {
+                      Get.to(
+                          () => const ClinicSearch()); //IT CANT ROUTE THE BELOW
+                      Get.to(() => NavbarUser(selectedPage: 0)); //THIS ONE SHIT
+                      context.read<Appdata>().type = 1;
+                    },
+                  ),
             type == 1
                 ? const ListTile(
                     leading: Icon(Icons.history, color: Colors.white),
@@ -170,12 +188,16 @@ class _UserRequestState extends State<UserRequest> {
                   )
                 : const SizedBox.shrink(),
             type == 1
-                ? const ListTile(
-                    leading: Icon(Icons.calendar_today, color: Colors.white),
-                    title: Text(
+                ? ListTile(
+                    leading:
+                        const Icon(Icons.calendar_today, color: Colors.white),
+                    title: const Text(
                       'ปฏิทิน',
                       style: TextStyle(color: Colors.white),
                     ),
+                    onTap: () {
+                      Get.to(() => const CalendarPage());
+                    },
                   )
                 : const SizedBox.shrink(),
             type == 1
@@ -196,87 +218,133 @@ class _UserRequestState extends State<UserRequest> {
                     ),
                   )
                 : const SizedBox.shrink(),
+            type == 1
+                ? ListTile(
+                    leading: const Icon(Icons.healing, color: Colors.white),
+                    title: const Text(
+                      'สลับไปยังคลินิก',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onTap: () {
+                      Get.to(
+                          () => const ClinicSearch()); //IT CANT ROUTE THE BELOW
+                      Get.to(() => NavbarUser(selectedPage: 0)); //THIS ONE SHIT
+                      context.read<Appdata>().type = 2;
+                    },
+                  )
+                : const SizedBox.shrink(),
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.white),
+              title: const Text(
+                'ออกจากระบบ',
+                style: TextStyle(color: Colors.white),
+              ),
+              onTap: () {
+                Get.to(() => const LoginPage()); //IT CANT ROUTE THE BELOW
+              },
+            )
           ],
         ),
       ),
       body: Column(
         children: [
-          Expanded(
-              child: ListView.builder(
-                  itemCount: reserveUser.length, // Length of your list
-                  itemBuilder: (context, index) {
-                    var book =
-                        reserveUser[index]; // Get the current item in the list
+          reserveUser.length > 0
+              ? Expanded(
+                  child: ListView.builder(
+                      itemCount: reserveUser.length, // Length of your list
+                      itemBuilder: (context, index) {
+                        var book = reserveUser[
+                            index]; // Get the current item in the list
 
-                    return Card(
-                      color: const Color(0xFFD9D9D9),
-                      elevation: 5,
-                      child: Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: Column(
-                          children: [
-                            Row(
+                        return Card(
+                          color: const Color(0xFFD9D9D9),
+                          elevation: 5,
+                          child: Padding(
+                            padding: const EdgeInsets.all(15),
+                            child: Column(
                               children: [
-                                Container(
-                                  margin:
-                                      const EdgeInsets.symmetric(vertical: 10),
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                      color: const Color.fromARGB(
-                                          255, 250, 106, 106),
-                                      shape: BoxShape.rectangle,
-                                      borderRadius: BorderRadius.circular(10)),
-                                  child: const Text(
-                                    'รอการยืนยัน',
-                                    style: TextStyle(
-                                        fontSize: 18, color: Colors.black),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                Column(
+                                Row(
                                   children: [
-                                    CircleAvatar(
-                                      radius: screenWidth * 0.1,
+                                    Container(
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 10),
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                          color: const Color.fromARGB(
+                                              255, 250, 106, 106),
+                                          shape: BoxShape.rectangle,
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      child: const Text(
+                                        'รอการยืนยัน',
+                                        style: TextStyle(
+                                            fontSize: 18, color: Colors.black),
+                                      ),
                                     ),
-                                    Text(book.clinicname), // Use dynamic data
                                   ],
                                 ),
                                 Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
                                   children: [
-                                    CircleAvatar(
-                                      radius: screenWidth * 0.09,
-                                    ),
                                     Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
                                       children: [
-                                        Text("ID: ${book.dRid}"),
-                                        Text("ชื่อ: ${book.name}"),
+                                        CircleAvatar(
+                                          radius: screenWidth * 0.1,
+                                        ),
+                                        Text(book
+                                            .clinicname), // Use dynamic data
                                       ],
-                                    )
+                                    ),
+                                    Row(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: screenWidth * 0.09,
+                                        ),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text("ID: ${book.dRid}"),
+                                            Text("ชื่อ: ${book.name}"),
+                                          ],
+                                        )
+                                      ],
+                                    ),
                                   ],
                                 ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    ElevatedButton(
+                                        onPressed: () {
+                                          showCancelDialog(context, book.rid);
+                                        },
+                                        child: const Text('ยกเลิก')),
+                                  ],
+                                )
                               ],
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                ElevatedButton(
-                                    onPressed: () {
-                                      showCancelDialog(context, book.rid);
-                                    },
-                                    child: const Text('ยกเลิก')),
-                              ],
-                            )
-                          ],
+                          ),
+                        );
+                      }))
+              : const Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "ยังไม่มีคำขอจองฉีดยา",
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    );
-                  }))
+                      ],
+                    ),
+                  ),
+                )
         ],
       ),
     );

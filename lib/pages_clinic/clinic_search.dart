@@ -5,7 +5,9 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:puppal_application/config/config.dart';
+import 'package:puppal_application/config/share/app_data.dart';
 import 'package:puppal_application/models/request/clinic_search.dart';
 import 'package:puppal_application/pages_clinic/clinic_page.dart';
 
@@ -18,12 +20,19 @@ class ClinicSearch extends StatefulWidget {
 
 class _ClinicSearchState extends State<ClinicSearch> {
   String url = "";
+  int uid = 0;
   double screenWidth = 0;
   double screenHeight = 0;
 
   TextEditingController searchWord = TextEditingController();
 
   List<SearchClinic> searchData = [];
+
+  @override
+  void initState() {
+    super.initState();
+    uid = context.read<Appdata>().uid;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -131,7 +140,7 @@ class _ClinicSearchState extends State<ClinicSearch> {
     url = config['apiEndPoint'];
 
     final response = await http.get(
-      Uri.parse("$url/clinic/search/${searchWord.text}"),
+      Uri.parse("$url/clinic/search/${searchWord.text}/$uid"),
       headers: {"Content-Type": "application/json; charset=utf-8"},
     );
 
@@ -140,7 +149,8 @@ class _ClinicSearchState extends State<ClinicSearch> {
 
     searchData =
         responseData.map((data) => SearchClinic.fromJson(data)).toList();
-    // log('Registration response: ${searchData[0].email}');
+
+    log('LENGTH: ${searchData.length}');
     setState(() {});
   }
 }
